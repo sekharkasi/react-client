@@ -7,5 +7,5 @@ export default [
       index("routes/home.tsx"),
       //route("Home", "routes/home.tsx"),
       route("product", "routes/product.tsx")
-    ]) 
+    ])
 ] satisfies RouteConfig;

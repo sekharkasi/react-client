@@ -37,7 +37,7 @@ export function Signout() : React.ReactElement {
   }
 
   return (
-    <div className="textAlignRight p-1 text-sm" onClick={signoutClick}>
+    <div className="signout-button" onClick={signoutClick}>
         sign out
     </div>
   );
