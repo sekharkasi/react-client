@@ -73,6 +73,7 @@ export function Signout() : React.ReactElement {
                     <ul>
                       <li><NavLink to="/"  style={({isActive, isPending, isTransitioning})=> ({ color: isActive? "red": "black" })}>Dashboard</NavLink></li>
                       <li><NavLink to="/product"  style={({isActive, isPending, isTransitioning})=> ({ color: isActive? "red": "black" })}>Products</NavLink></li>
+                      <li><NavLink to="/customer"  style={({isActive, isPending, isTransitioning})=> ({ color: isActive? "red": "black" })}>Customers</NavLink></li>
                     </ul>            
                   </div>
           

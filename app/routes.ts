@@ -6,6 +6,8 @@ export default [
     layout("routes/layout.tsx", [
       index("routes/home.tsx"),
       //route("Home", "routes/home.tsx"),
-      route("product", "routes/product.tsx")
+      route("product", "routes/product.tsx"),
+      route("customer", "routes/customer.tsx")
+
     ])
 ] satisfies RouteConfig;

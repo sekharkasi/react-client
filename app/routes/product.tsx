@@ -1,15 +1,10 @@
 import type {Route} from './+types/product';
 
 import { useLoaderData } from "react-router-dom";
-import {ProductPage} from "~/Product/product_notused"
-import type { LoaderFunctionArgs } from "react-router-dom";
-
 import React, { StrictMode, useState, useEffect, useRef, useImperativeHandle} from "react";
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';   
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import { useNavigate } from 'react-router';
-import { Form } from "react-router-dom";
-
 
 
 //Load AG Grid 
@@ -22,6 +17,7 @@ type Product = {
   description: string;
   active: boolean;
   price_per_unit: string;
+  id: string;
 };
 
 type LoaderData = {
@@ -32,8 +28,6 @@ type LoaderData = {
 // Create new GridExample component
 const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => {
   const { loaderData } = props;
-
-    console.log("ref--> ", ref);
 
     const [rowData, setRowData] = useState([]);
 
@@ -48,6 +42,55 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
         addRow
     }));
 
+    const handleDelete = async (product) => {
+        const confirmation = confirm(`Are you sure you want to delete ${product.product_name}?`);
+        if(!confirmation)
+            return;
+
+        try{
+
+            const response = await fetch(`http://localhost:19200/product/${product.id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+
+                //const gridRef = useRef();
+                gridRef.current.api.applyTransaction({ remove: [product] });
+
+            } else {
+                console.error('Failed to delete product');
+            }
+        }
+        catch(e){
+            console.error(e);
+        }
+    }
+
+    const onCellEdit = async (event) => {
+        try{
+
+            const product = event.data;
+            console.log("product", product);
+
+            const response = await fetch(`http://localhost:19200/product/${product.id}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(product)
+            });
+
+            if (!response.ok) {
+                console.error('Failed to delete product');
+            }
+        }
+        catch(e){
+            console.error(e);
+        }
+    }
 
     useEffect(() => {
         console.log(loaderData.data);
@@ -61,10 +104,23 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
     // Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
       { field: "image" },
-      { field: "product_name" },
-      { field: "price_per_unit" },      
-      { field: "description" },
-      { field: "active" },
+      { field: "product_name", editable:true },
+      { field: "price_per_unit", editable:true },      
+      { field: "description", editable:true },
+      { field: "active" , editable:true},
+      {
+        headerName: "Actions", 
+        cellRenderer: (params)=> {
+            return(
+                <button
+                    onClick={()=> handleDelete(params.data)}
+                    className='bg-red-400 text-white px-3 py-0 rounded cursor-pointer'
+                >
+                    Delete
+                </button>                
+            );
+        }
+      }
     ]);
 
     const defaultColDef = {
@@ -79,7 +135,7 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
             columnDefs={colDefs}
             defaultColDef={defaultColDef}
             ref = {gridRef}
-            
+            onCellValueChanged={onCellEdit}
           />
         </div>
       );
@@ -157,7 +213,7 @@ export function AddProductsPopup({closePopup, onAddProduct}){
        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-3 rounded-lg shadow-lg w-80">
             <h2 className="text-lg font-bold mb-4">Add Product</h2>
-             <Form method="post" onSubmit={() => closePopup()}>
+             {/* <Form method="post" onSubmit={() => closePopup()}> */}
                 <input
                 type="text"
                 name="product_name"
@@ -202,7 +258,7 @@ export function AddProductsPopup({closePopup, onAddProduct}){
                     Add
                 </button>
                 </div>
-            </Form>
+            {/* </Form> */}
           </div>
         </div>
     );
@@ -219,7 +275,7 @@ export function Popup({onAddProduct}){
 
         <div>
                 <div>
-                    <button onClick={toggleIsOpen}>Add Products</button>
+                    <button onClick={toggleIsOpen} className='bg-gray-400 text-white px-3 py-0 rounded cursor-pointer'>Add Products</button>
                 </div>
         {isOpen && (
                 <AddProductsPopup closePopup={toggleIsOpen} onAddProduct={onAddProduct}/>
@@ -256,3 +312,4 @@ const saveProduct = async (product: Product) => {
     alert('Failed to save product');
   }
 };
+
