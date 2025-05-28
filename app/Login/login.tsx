@@ -1,6 +1,6 @@
 import { Button, Group, TextInput, MantineProvider, PasswordInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useNavigate } from 'react-router';
+import { useNavigate, NavLink } from 'react-router';
 import '@mantine/core/styles.css';
 
 
@@ -65,6 +65,8 @@ export function Login(){
             <Group justify="flex-end" mt="md">
                 <Button type="submit" color="gray">Login</Button>
             </Group>
+
+            <p>Not registered? signup <NavLink to="/signup"  style={{ color: "blue" }}>here</NavLink> </p>
         </form>
       </div>
     </main>

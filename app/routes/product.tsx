@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router';
 //Load AG Grid 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-
 type Product = {
   image?: string;
   product_name: string;  
@@ -103,7 +102,25 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
 
     // Column Definitions: Defines & controls grid columns.
     const [colDefs, setColDefs] = useState([
-      { field: "image" },
+      {
+        headerName: "Product", 
+        cellRenderer: (params)=> {
+            
+            return params.data.image && (
+                        <img
+                            src={params.data.image}
+                            alt="Preview"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                border: 'none'
+                            }}
+                            className="w-full h-40 object-contain mb-2 rounded"
+                        />                
+                    );
+        }
+      },
       { field: "product_name", editable:true },
       { field: "price_per_unit", editable:true },      
       { field: "description", editable:true },
@@ -196,7 +213,22 @@ export function AddProductsPopup({closePopup, onAddProduct}){
     const[product, setProduct] = useState({"product_name":"", "image":undefined, "description":"", "active":true, "price_per_unit":'' });
 
     const handleInputChange = (e)=>{
-        setProduct({...product,[e.target.name]:e.target.value});
+
+         const { name, value, files } = e.target;
+
+        if(e.target.name == "image" && files && files[0]){
+            const reader = new FileReader();
+            reader.onloadend = ()=>{
+
+                console.log("reader.result", reader.result);
+
+                setProduct({...product, [e.target.name]: reader.result})
+            }
+            reader.readAsDataURL(files[0]);
+        }
+        else{
+            setProduct({...product,[e.target.name]:e.target.value});
+        }
         console.log('set product called', product);
     }
 
@@ -226,11 +258,18 @@ export function AddProductsPopup({closePopup, onAddProduct}){
                 type="file"
                 accept='image/*'
                 name="image"
-                placeholder="Product Image"
-                value={product.image}
+                placeholder="Product Image"                
                 onChange={handleInputChange}
                 className="w-full border px-3 py-2 mb-2"
                 />
+                {product.image && (
+                    <img
+                        src={product.image}
+                        alt="Preview"
+                        className='w-full h-40 object-contain mb-2 border rounded'
+                    >                    
+                    </img>                    
+                )}
                 <input
                 type="string"
                 name="description"

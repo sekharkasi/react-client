@@ -7,7 +7,8 @@ export default [
       index("routes/home.tsx"),
       //route("Home", "routes/home.tsx"),
       route("product", "routes/product.tsx"),
-      route("customer", "routes/customer.tsx")
+      route("customer", "routes/customer.tsx"),
+      route("order", "routes/order.tsx")
 
     ])
 ] satisfies RouteConfig;

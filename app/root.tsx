@@ -32,7 +32,7 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col h-screen">
          {/* Header */}
          <header className="bg-gray-300 text-brown p-4 text-xl font-semibold">
-            Welcome to Orders Demo
+            Welcome to Demo app
         </header>
   
 
