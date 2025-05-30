@@ -245,7 +245,7 @@ export function AddProductsPopup({closePopup, onAddProduct}){
        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-3 rounded-lg shadow-lg w-80">
             <div className="text-right">
-                <h2 className="bg-gray-400 text-white px-4 py-2 rounded">Add Product</h2>
+                <h2 className="bg-gray-400 text-white px-0 py-0 rounded">Add Product</h2>
             </div>
              {/* <Form method="post" onSubmit={() => closePopup()}> */}
                 <input
@@ -313,15 +313,16 @@ export function Popup({onAddProduct}){
         setIsOpen(!isOpen);
     }
     return (
-
-        <div>
-                <div>
-                    <button onClick={toggleIsOpen} className='bg-gray-400 text-white px-3 py-0 rounded cursor-pointer'>Add Products</button>
-                </div>
-        {isOpen && (
+        <div className="flex justify-end">
+            <button 
+                onClick={toggleIsOpen} 
+                className="bg-gray-400 text-white px-4 py-2 rounded cursor-pointer hover:bg-gray-500"
+            >
+                Add Products
+            </button>
+            {isOpen && (
                 <AddProductsPopup closePopup={toggleIsOpen} onAddProduct={onAddProduct}/>
-            )
-        }
+            )}
         </div>
     );
 }
