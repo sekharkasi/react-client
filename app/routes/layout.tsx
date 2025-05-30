@@ -46,8 +46,8 @@ export function Signout() : React.ReactElement {
   }
 
   return (
-    <div className="signout-button" onClick={signoutClick}>
-        sign out
+    <div className="font-sarif font-semibold signout-button" onClick={signoutClick}>
+        <p>sign out</p>
     </div>
   );
 };
@@ -66,7 +66,7 @@ export function Signout() : React.ReactElement {
             </head>
 
 
-            <body>
+            <body  className="font-sans bg-white text-gray-900">
 
               <MantineProvider>
               <Notifications position="top-right" zIndex={2077}>
@@ -75,7 +75,7 @@ export function Signout() : React.ReactElement {
 
                   <div className="flex flex-col h-screen">
                     {/* Header */}
-                    <header className="bg-gray-300 text-brown p-4 text-xl font-semibold">
+                    <header className="bg-gray-200 text-brown p-4 text-xl font-semibold">
                         Welcome to React app demo
                       <Signout/>
                     </header>
@@ -83,8 +83,8 @@ export function Signout() : React.ReactElement {
             
                       <div className="flex flex-1 overflow-hidden">
                         {/* Left Panel */}
-                        <div className="w-1/8 bg-gray-100 border-r p-3 overflow-y-auto">
-                          <h2 className="text-xl font-bold mb-4">Menu</h2>
+                        <div className="font-sarif font-semibold  w-1/8 bg-gray-100  p-8 overflow-y-auto">
+                          
                         
                           <ul>
                             <li><NavLink to="/"  style={({isActive, isPending, isTransitioning})=> ({ color: isActive? "red": "black" })}>Dashboard</NavLink></li>
@@ -96,7 +96,7 @@ export function Signout() : React.ReactElement {
                 
                         {/* Right Panel */}
                         <div className="flex-1 p-6 overflow-y-auto">
-                          <h2 className="text-2xl font-semibold mb-4">Details</h2>
+                          <h2 className="text-2xl font-semibold mb-3">Products</h2>
                             {children}
                         </div>
                       </div>

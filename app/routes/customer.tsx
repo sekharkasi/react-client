@@ -58,7 +58,11 @@ const CustomersGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) 
       { field: "name" },
       { field: "email" },
       { field: "role" },      
-      { field: "createdAt" }
+      { field: "createdAt",
+      valueFormatter: (params) => {
+        const date = new Date(params.value);
+        return date.toLocaleDateString() +' '+ date.toLocaleTimeString(); // Or use moment.js/dayjs if needed
+      } }
     ]);
 
     const defaultColDef = {

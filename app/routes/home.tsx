@@ -13,7 +13,7 @@ import { useLoaderData } from "react-router-dom";
 import React, { StrictMode, useState, useEffect, useRef, useImperativeHandle} from "react";
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';  
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
-import { useNavigate } from 'react-router';
+import { redirect, useNavigate } from 'react-router';
 import { showNotification } from '@mantine/notifications';
 
 //Load AG Grid 
@@ -125,8 +125,10 @@ export async function clientLoader({params}: Route.ClientLoaderArgs){
                             return res.json();
                     })
                     .catch((e)=> {
-                        console.error(e.status);                        
+                        console.error("error", e);
                     });
+
+      
     return data;
 }
 
@@ -187,6 +189,13 @@ export default function Home({loaderData}: Route.ComponentProps){
     const data = useLoaderData();
     let navigate = useNavigate();
 
+      useEffect(() => {
+          if (loaderData?.message === "Unauthorized") {
+              console.log('redirecting');
+              navigate("/login");
+          }
+      }, [loaderData, navigate]);
+  
     const gridComponentRef = useRef();
     const productGrid = loaderData?.data && (
                             <ProductsTileView products={loaderData.data} />

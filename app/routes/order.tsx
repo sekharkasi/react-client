@@ -49,7 +49,12 @@ const OrdersGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => 
             if (!items || items.length === 0) return '—';
             return items.map(i => `${i.quantity}x ${i.product?.product_name}`).join(', ');
             }
-        }
+        },      
+        { field: "createdAt",
+        valueFormatter: (params) => {
+            const date = new Date(params.value);
+            return date.toLocaleDateString() +' '+ date.toLocaleTimeString(); // Or use moment.js/dayjs if needed
+        } }
         ];
 
         // Container: Defines the grid's theme & dimensions.

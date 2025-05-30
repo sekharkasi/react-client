@@ -1,17 +1,20 @@
-@import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
+@import "tailwindcss";
+/* Add in index.css or global styles */
+
 
 html,
-body {
+/* body {    
+
   @apply bg-white dark:bg-gray-950;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+} */
+
+body {
+  font-family: 'Inter', 'Roboto', sans-serif;
 }
 
 .signout-button{  
@@ -23,6 +26,6 @@ body {
     text-decoration: none;
 }
 .signout-button:hover {
-  color: rgb(237, 222, 222);
+  color: rgb(221, 32, 32);
   text-decoration: underline;
 }
