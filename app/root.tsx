@@ -14,6 +14,9 @@ import type { Route } from "./+types/root";
 
 import "./app.css"; 
 import type React from "react";
+
+import { Notifications, showNotification } from "@mantine/notifications";
+import '@mantine/notifications/styles.css';
  
 
 export function RootLayout({ children }: { children: React.ReactNode }) {
@@ -35,6 +38,8 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
             Welcome to Demo app
         </header>
   
+        <Notifications position="top-right" zIndex={2077}>
+        </Notifications>
 
           <div className="flex flex-1 overflow-hidden">           
             {/* Right Panel */}
@@ -54,6 +59,19 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
+}
+
+/**
+ * Show a notification with a title, message, and color.
+ * @param props - The props object containing title, message, and color.
+ */
+export function showDemoNotifications(props: {title: string, message: string, color: string}) {  
+  showNotification({
+    title: props.title??'Success',
+    message: props.message,
+    color: props.color?? 'green', // green color for success, red for failure
+    autoClose: 3000, // closes after 3 seconds
+  });
 }
 
 export default function App() {

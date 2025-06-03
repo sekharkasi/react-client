@@ -11,19 +11,16 @@ import {
   import type { Route } from "../+types/root";
   import { useNavigate } from "react-router";
   
+  import { Notifications } from '@mantine/notifications';
+
   import "../app.css"; 
   import type React from "react";
-
-    import { MantineProvider } from '@mantine/core';
-  import { Notifications } from '@mantine/notifications';
-  
+  import { MantineProvider } from '@mantine/core';    
   import '@mantine/core/styles.css';
   import '@mantine/notifications/styles.css';
+  
    
         
-
-
-
 export function Signout() : React.ReactElement {
     
   let navigate = useNavigate();

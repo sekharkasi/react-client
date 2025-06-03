@@ -5,6 +5,8 @@ import React, { StrictMode, useState, useEffect, useRef, useImperativeHandle} fr
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';   
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import { useNavigate } from 'react-router';
+import { showDemoNotifications } from "~/root";
+
 
 
 //Load AG Grid 
@@ -54,11 +56,12 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
             });
 
             if (response.ok) {
-
                 //const gridRef = useRef();
-                gridRef.current.api.applyTransaction({ remove: [product] });
+                gridRef.current.api.applyTransaction({ remove: [product] });                
+                showDemoNotifications({title: 'Success', message: 'Product deleted successfully!', color: 'green'});
 
             } else {
+                showDemoNotifications({title: 'Failure', message: 'Something went wrong', color: 'red'});
                 console.error('Failed to delete product');
             }
         }
@@ -342,8 +345,12 @@ const saveProduct = async (product: Product) => {
       body: JSON.stringify(product),
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to save product');
+    if (!response.ok) {      
+        showDemoNotifications({title: 'Failure', message: 'Something went wrong', color: 'red'});
+        throw new Error('Failed to save product');
+    }
+    else{
+        showDemoNotifications({title: 'Success', message: 'Product added successfully!', color: 'green'});
     }
 
     // // Notify parent to add the product to AG Grid

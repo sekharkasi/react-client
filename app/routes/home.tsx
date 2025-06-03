@@ -14,7 +14,8 @@ import React, { StrictMode, useState, useEffect, useRef, useImperativeHandle} fr
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';  
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import { redirect, useNavigate } from 'react-router';
-import { showNotification } from '@mantine/notifications';
+
+import { showDemoNotifications } from "~/root";
 
 //Load AG Grid 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -36,15 +37,6 @@ type LoaderData = {
 
 
 
-function handleOrderSuccess() {
-  console.log("shownotification called");
-  showNotification({
-    title: 'Success',
-    message: 'Product ordered successfully!',
-    color: 'green', // green color for success
-    autoClose: 3000, // closes after 3 seconds
-  });
-}
 
 // Create new GridExample component
 const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => {
@@ -116,6 +108,8 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
 
 export async function clientLoader({params}: Route.ClientLoaderArgs){
     
+    console.log(" fetching active products");
+
     const data = await  fetch('http://localhost:19200/product/activeproducts',{
                         method: 'GET',
                         credentials: 'include'                        
@@ -154,9 +148,10 @@ const ProductsTileView = ({ products }) => {
             });
 
             if (response.ok) {
-                handleOrderSuccess();
-            } else {
-                console.error('Failed to delete product');
+                //showDemoNotifications({title: 'Success', message: 'Product ordered successfully!', color: 'green'});
+
+            } else {                
+                //showDemoNotifications({title: 'Failure', message: 'Failed to delete product', color: 'red'});
             }
         }
         catch(e){
@@ -190,10 +185,11 @@ export default function Home({loaderData}: Route.ComponentProps){
     let navigate = useNavigate();
 
       useEffect(() => {
-          if (loaderData?.message === "Unauthorized") {
+        console.log(loaderData);
+        if (loaderData?.message === "Unauthorized") {
               console.log('redirecting');
               navigate("/login");
-          }
+        }
       }, [loaderData, navigate]);
   
     const gridComponentRef = useRef();

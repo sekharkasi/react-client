@@ -1,6 +1,8 @@
 import { Button, Group, TextInput, MantineProvider, PasswordInput, NativeSelect } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useNavigate } from 'react-router';
+import { showDemoNotifications } from "~/root";
+
 
 import '@mantine/core/styles.css';
 
@@ -19,9 +21,11 @@ export function SignUp(){
             })
             .then((res)=> {
                 console.log("SUCCESS RESPONSE ", res);
+                showDemoNotifications({title: 'Success', message: 'You have signed up successfully!', color: 'green'});
                 navigate("/login");
             })
             .catch((e)=> {
+                showDemoNotifications({title: 'Failure', message: 'Something went wrong', color: 'red'});
                 console.error(e);
             });
 
@@ -38,7 +42,9 @@ export function SignUp(){
         },
     
         validate: {
-          email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+          name: (value) => (value.trim() === '' ? 'Name is required' : null),
+          email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),  
+          password: (value) => (value.trim() === '' ? 'Password is required' : null),      
         },
       });
     
