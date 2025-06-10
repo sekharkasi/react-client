@@ -128,11 +128,11 @@ export async function clientLoader({params}: Route.ClientLoaderArgs){
 
 const ProductsTileView = ({ products }) => {
 
-   const OrderProduct = async (product) => {
+   const AddProductToCart = async (product) => {
        
         try{
 
-            const response = await fetch(`http://localhost:19200/order/saveorder`, {
+            const response = await fetch(`http://localhost:19200/cart/add`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -140,18 +140,17 @@ const ProductsTileView = ({ products }) => {
                 },
                 body: JSON.stringify({
                   "items": [{
-                    "id": product.id, 
-                    "price_per_unit": product.price_per_unit,
+                    "product_id": product.id, 
                     "quantity": 1
                   }]
                 })
             });
 
             if (response.ok) {
-                //showDemoNotifications({title: 'Success', message: 'Product ordered successfully!', color: 'green'});
+                showDemoNotifications({title: 'Success', message: 'Item added to cart!', color: 'green'});
 
             } else {                
-                //showDemoNotifications({title: 'Failure', message: 'Failed to delete product', color: 'red'});
+                showDemoNotifications({title: 'Failure', message: 'Failed to add item to cart', color: 'red'});
             }
         }
         catch(e){
@@ -169,10 +168,10 @@ const ProductsTileView = ({ products }) => {
           <p className="text-gray-600">{product.description}</p>
           <p className="text-blue-500 font-bold">₹{product.price_per_unit}</p>
           <button
-                    onClick={()=> OrderProduct(product)}
+                    onClick={()=> AddProductToCart(product)}
                     className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
                 >
-                    Order
+                    Add to Cart
                 </button>  
         </div>
       ))}

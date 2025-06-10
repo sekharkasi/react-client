@@ -245,9 +245,9 @@ export function AddProductsPopup({closePopup, onAddProduct}){
     }
 
     return (
-       <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-3 rounded-lg shadow-lg w-80">
-            <div className="text-right">
+       <div className="fixed inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-3 rounded-lg shadow-lg w-[500px]">
+            <div className="text-center mb-4">
                 <h2 className="bg-gray-400 text-white px-0 py-0 rounded">Add Product</h2>
             </div>
              {/* <Form method="post" onSubmit={() => closePopup()}> */}
@@ -257,7 +257,7 @@ export function AddProductsPopup({closePopup, onAddProduct}){
                 placeholder="Product Name"
                 value={product.product_name}
                 onChange={handleInputChange}
-                className="w-full border px-3 py-2 mb-2"
+                className="w-full border border-gray-300 rounded px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <input
                 type="file"
@@ -265,7 +265,7 @@ export function AddProductsPopup({closePopup, onAddProduct}){
                 name="image"
                 placeholder="Product Image"                
                 onChange={handleInputChange}
-                className="w-full border px-3 py-2 mb-2"
+                className="w-full border border-gray-300 rounded px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 {product.image && (
                     <img
@@ -281,7 +281,7 @@ export function AddProductsPopup({closePopup, onAddProduct}){
                 placeholder="Description"
                 value={product.description}
                 onChange={handleInputChange}
-                className="w-full border px-3 py-2 mb-4"
+                className="w-full border border-gray-300 rounded px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <input
                 type="double"
@@ -289,15 +289,15 @@ export function AddProductsPopup({closePopup, onAddProduct}){
                 placeholder="Price"
                 value={product.price_per_unit}
                 onChange={handleInputChange}
-                className="w-full border px-3 py-2 mb-4"
+                className="w-full border border-gray-300 rounded px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <div className="flex justify-end space-x-2">
-                <button onClick={closePopup} className="text-gray-600 px-3 py-1">
+                <button onClick={closePopup} className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded shadow">
                     Cancel
                 </button>
                 <button
                     onClick={handleAddProduct}
-                    className="bg-green-500 text-white px-3 py-1 rounded"
+                    className="text-gray-600 hover:text-gray-800 px-5 py-2 rounded"
                 >
                     Add
                 </button>

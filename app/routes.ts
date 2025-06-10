@@ -8,7 +8,7 @@ export default [
       //route("Home", "routes/home.tsx"),
       route("product", "routes/product.tsx"),
       route("customer", "routes/customer.tsx"),
-      route("order", "routes/order.tsx")
-
+      route("order", "routes/order.tsx"), 
+      route("cart", "routes/cart.tsx")
     ])
 ] satisfies RouteConfig;
