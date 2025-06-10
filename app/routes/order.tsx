@@ -26,9 +26,9 @@ const OrdersGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => 
   const { loaderData } = props;
 
     const [rowData, setRowData] = useState([]);
-
     const gridRef = useRef();
 
+    const userrole = sessionStorage.getItem("demoAppUserRole");
 
     useEffect(() => {
         if (loaderData.data && Array.isArray(loaderData.data)) {
@@ -39,19 +39,19 @@ const OrdersGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => 
 
     // Column Definitions: Defines & controls grid columns.
     const orderColumnDefs = [
-        { field: 'user.name', headerName: 'Customer' },
+        { field: 'user.name', headerName: 'Customer' , hide: userrole != "admin"},
+        {
+          headerName: 'Items',
+          valueGetter: (params) => {
+          const items = params.data.order_items;
+          if (!items || items.length === 0) return '—';
+          return items.map(i => `${i.quantity}x ${i.product?.product_name}`).join(', ');
+        }
+        },
         { field: 'total_amount', headerName: 'Total Amount' },
-        { field: 'status', headerName: 'Status' }, 
-         {
-            headerName: 'Items',
-            valueGetter: (params) => {
-            const items = params.data.order_items;
-            if (!items || items.length === 0) return '—';
-            return items.map(i => `${i.quantity}x ${i.product?.product_name}`).join(', ');
-            }
-        },      
-        { field: "createdAt",
-        valueFormatter: (params) => {
+        { field: 'status', headerName: 'Status' },               
+        { field: "createdAt", headerName: 'Date & Time',
+          valueFormatter: (params) => {
             const date = new Date(params.value);
             return date.toLocaleDateString() +' '+ date.toLocaleTimeString(); // Or use moment.js/dayjs if needed
         } }
