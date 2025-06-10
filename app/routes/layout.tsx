@@ -59,6 +59,7 @@ export function Signout() : React.ReactElement {
       "/product": "Products",
       "/customer": "Customers",
       "/order": "Orders",
+      "/cart": "Shopping Cart",
     };
 
     

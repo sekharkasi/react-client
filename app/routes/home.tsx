@@ -43,6 +43,7 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
   const { loaderData } = props;
 
     const [rowData, setRowData] = useState([]);
+    //const { loaderData, onTotalChange } = props;
 
     const gridRef = useRef();
 

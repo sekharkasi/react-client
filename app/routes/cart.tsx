@@ -25,8 +25,8 @@ type LoaderData = {
 };
 
 // Create CartGrid component
-const CartGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => {
-  const { loaderData } = props;
+const CartGrid = React.forwardRef((props: { loaderData: LoaderData; onTotalChange: (total: number) => void }, ref) => {
+  const { loaderData, onTotalChange } = props;
   const [rowData, setRowData] = useState<CartItem[]>([]);
   const gridRef = useRef<AgGridReact>(null);
 
@@ -35,6 +35,32 @@ const CartGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => {
       setRowData(loaderData.data);
     }
   }, [loaderData.data]);
+
+  // Calculate total price
+  const totalPrice = rowData.reduce(
+    (sum, item) => sum + item.quantity * item.product.price_per_unit,
+    0
+  );
+
+  // Notify parent of total price
+  useEffect(() => {
+    onTotalChange(totalPrice);
+  }, [totalPrice, onTotalChange]);
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    try {
+      const response = await fetch(`http://localhost:19200/cart/items/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to delete cart item');
+      setRowData(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      alert('Error deleting cart item');
+      console.error(error);
+    }
+  };
 
   // Column Definitions
   const cartColumnDefs = [
@@ -53,17 +79,20 @@ const CartGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => {
       headerName: 'Price per Unit',
       width: 120,
       valueFormatter: (params: any) => {
-        return `$${params.value.toFixed(2)}`;
+        return `$${params.value?.toFixed(2)}`;
       }
     },
     {
       headerName: 'Total',
       width: 120,
       valueGetter: (params: any) => {
+        // For pinned row, use the precomputed total
+        if (params.node.rowPinned) return params.data.total;
         return params.data.quantity * params.data.product.price_per_unit;
       },
       valueFormatter: (params: any) => {
-        return `$${params.value.toFixed(2)}`;
+        if (params.value === '' || params.value == null || params.value == undefined) return '';
+        return `$${params.value?.toFixed(2)}`;
       }
     },
     { 
@@ -74,8 +103,35 @@ const CartGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => {
         const date = new Date(params.value);
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
       }
+    },
+    {
+      headerName: 'Actions',
+      field: 'actions',
+      width: 120,
+      cellRenderer: (params: any) => {
+        return (
+          <button
+            className="bg-red-500 text-white px-2 py-0 rounded hover:bg-red-600"
+            onClick={() => handleDelete(params.data.id)}
+          >
+            Delete
+          </button>
+        );
+      }
     }
   ];
+
+  // Pinned bottom row for total
+  //const pinnedBottomRowData = [
+  //  {
+  //    product: { product_name: 'Total' },
+  //    quantity: '',
+  //    productId: '',
+  //    userId: '',
+  //    addedAt: '',
+  //    total: totalPrice
+  //  }
+  //];
 
   return (
     <div style={{ width: "1000px", height: "500px" }}>
@@ -88,6 +144,7 @@ const CartGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => {
           filter: true,
           resizable: true
         }}
+        //pinnedBottomRowData={pinnedBottomRowData}
       />
     </div>
   );
@@ -115,22 +172,47 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
   const data = useLoaderData();
   const navigate = useNavigate();
   const gridComponentRef = useRef<typeof CartGrid>(null);
-  const [productId, setProductId] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const [total, setTotal] = useState(0);
 
+  // Place Order handler
+  const handlePlaceOrder = async () => {
+    try {
+      // You can adjust the payload as needed for your backend
+      const response = await fetch('http://localhost:19200/order/saveorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ total_amount: total })
+      });
+      if (!response.ok) throw new Error('Failed to place order');
+      alert('Order placed successfully!');
+      // Optionally, redirect or refresh
+      window.location.reload();
+    } catch (error) {
+      alert('Error placing order');
+      console.error(error);
+    }
+  };
 
   const cartGrid = loaderData?.data && (
-    <CartGrid ref={gridComponentRef} loaderData={loaderData} />
+    <CartGrid ref={gridComponentRef} loaderData={loaderData} onTotalChange={setTotal} />
   );
 
   return (
     <main className="flex items-center justify-center pt-16 pb-4">
       <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
         <div>
-          <h1 className="text-2xl font-bold mb-4">Shopping Cart</h1>          
-          {/* Add to Cart Form */}      
           <div>
             {cartGrid}
+          </div>
+          <div className="flex justify-end mt-4 w-full" style={{ maxWidth: 1000 }}>
+            <span className="text-lg font-semibold mr-6">Total: ${total?.toFixed(2)}</span>
+            <button
+              className="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700"
+              onClick={handlePlaceOrder}
+            >
+              Place Order
+            </button>
           </div>
         </div>
       </div>
