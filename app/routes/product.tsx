@@ -6,7 +6,7 @@ import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import { useNavigate } from 'react-router';
 import { showDemoNotifications } from "~/root";
-
+import { openConfirmModal } from '@mantine/modals';
 
 
 //Load AG Grid 
@@ -188,6 +188,7 @@ export default function product({loaderData}: Route.ComponentProps){
 
     const handleAddProduct = (product) => {        
 
+        console.log("adding product to grid ", product);
         if (gridComponentRef.current?.addRow) {
             console.log("handleAddProduct-> addrow");
             gridComponentRef.current.addRow([product]); // must pass as array
@@ -229,19 +230,26 @@ export function AddProductsPopup({closePopup, onAddProduct}){
             }
             reader.readAsDataURL(files[0]);
         }
+        else if(e.target.name == "price_per_unit" ){
+            console.log("e.target.name", parseInt(e.target.value))
+            setProduct({...product,[e.target.name]: parseInt(e.target.value)});
+        }
         else{
             setProduct({...product,[e.target.name]:e.target.value});
         }
         console.log('set product called', product);
     }
 
-    const handleAddProduct = ()=> {     
-        //save product
-        saveProduct(product);
-     
-        //add product to AG Grid
-        onAddProduct(product);
-        closePopup();
+    const handleSaveProduct = async()=> {     
+
+        console.log("product ", product);
+
+        const savedProduct = await saveProduct(product);
+        if (savedProduct) {            
+            // add product to AG Grid with the correct id
+            onAddProduct(savedProduct.product);
+            closePopup();
+        }
     }
 
     return (
@@ -296,7 +304,7 @@ export function AddProductsPopup({closePopup, onAddProduct}){
                     Cancel
                 </button>
                 <button
-                    onClick={handleAddProduct}
+                    onClick={handleSaveProduct}
                     className="text-gray-600 hover:text-gray-800 px-5 py-2 rounded"
                 >
                     Add
@@ -351,6 +359,8 @@ const saveProduct = async (product: Product) => {
     }
     else{
         showDemoNotifications({title: 'Success', message: 'Product added successfully!', color: 'green'});
+        const savedProduct = await response.json(); // <-- get the product with id from server
+        return savedProduct;
     }
 
     // // Notify parent to add the product to AG Grid

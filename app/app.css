@@ -29,3 +29,15 @@ body {
   color: rgb(221, 32, 32);
   text-decoration: underline;
 }
+
+.input-border-gray {
+  border: 1px solid #cbd5e1; /* Tailwind gray-400 */
+}
+.input-border-gray:hover {
+  border-color: #a1a1aa; /* Tailwind gray-500 */
+}
+
+.input-border-gray:focus {
+  border-color: #cbd5e1; /* gray-400 */
+  box-shadow: 0 0 0 2px rgba(203, 213, 225, 0.6); /* focus ring like Tailwind */
+}
