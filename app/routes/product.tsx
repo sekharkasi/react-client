@@ -6,7 +6,6 @@ import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import { useNavigate } from 'react-router';
 import { showDemoNotifications } from "~/root";
-import { openConfirmModal } from '@mantine/modals';
 
 
 //Load AG Grid 
