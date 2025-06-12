@@ -63,6 +63,11 @@ const OrdersGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) => 
           <AgGridReact
             rowData={rowData}
             columnDefs={orderColumnDefs}
+            defaultColDef={{
+              sortable: true,
+              filter: true,
+              resizable: true
+            }}
             ref = {gridRef}     
           />
         </div>

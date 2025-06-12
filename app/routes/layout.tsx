@@ -12,7 +12,7 @@ import {
   import { useNavigate, useLocation } from "react-router";
   
   import { Notifications } from '@mantine/notifications';
-
+  
   import "../app.css"; 
   import type React from "react";
   import { MantineProvider } from '@mantine/core';    

@@ -57,7 +57,8 @@ const CartGrid = React.forwardRef((props: { loaderData: LoaderData; onTotalChang
       if (!response.ok) throw new Error('Failed to delete cart item');
       setRowData(prev => prev.filter(item => item.id !== id));
     } catch (error) {
-      alert('Error deleting cart item');
+      //alert('Error deleting cart item');
+      showDemoNotifications({title: 'Failure', message: 'Error deleting cart item', color: 'red'});
       console.error(error);
     }
   };
@@ -185,11 +186,13 @@ export default function Cart({ loaderData }: Route.ComponentProps) {
         body: JSON.stringify({ total_amount: total })
       });
       if (!response.ok) throw new Error('Failed to place order');
-      alert('Order placed successfully!');
+      //alert('Order placed successfully!');
+      showDemoNotifications({title: 'Success', message: 'Order placed successfully!', color: 'green'});
       // Optionally, redirect or refresh
       window.location.reload();
     } catch (error) {
-      alert('Error placing order');
+      //alert('Error placing order');
+      showDemoNotifications({title: 'Failure', message: 'Error placing order', color: 'red'});
       console.error(error);
     }
   };

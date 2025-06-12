@@ -15,7 +15,9 @@ import type { Route } from "./+types/root";
 import "./app.css"; 
 import type React from "react";
 import { MantineProvider} from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 import { Notifications, showNotification } from "@mantine/notifications";
+import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
  
 
@@ -31,31 +33,38 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-      <MantineProvider>
-          <div className="flex flex-col h-screen">
-            {/* Header */}
-            <header className="bg-gray-300 text-brown p-4 text-xl font-semibold">
-                Welcome to Demo app
-            </header>
-      
-            <Notifications position="top-right" zIndex={2077}>
-            </Notifications>
-
-              <div className="flex flex-1 overflow-hidden">           
-                {/* Right Panel */}
-                <div className="flex-1 p-6 overflow-y-auto">
-                    {children}
-                </div>
-              </div>
+      <MantineProvider
+        theme={{
+          primaryColor: 'blue',
+          defaultRadius: 'md',
+        }}
+      >
+        <ModalsProvider>
+            <div className="flex flex-col h-screen">
+              {/* Header */}
+              <header className="bg-gray-300 text-brown p-4 text-xl font-semibold">
+                  Welcome to Demo app
+              </header>
         
-              {/* Footer */}
-              <footer className="bg-gray-200 text-center p-3 text-sm text-gray-600">
-                © 2025 MyApp. All rights reserved.
-              </footer>
-          </div>
+              <Notifications position="top-right" zIndex={2077}>
+              </Notifications>
 
-            <ScrollRestoration />
-            <Scripts />
+                <div className="flex flex-1 overflow-hidden">           
+                  {/* Right Panel */}
+                  <div className="flex-1 p-6 overflow-y-auto">
+                      {children}
+                  </div>
+                </div>
+          
+                {/* Footer */}
+                <footer className="bg-gray-200 text-center p-3 text-sm text-gray-600">
+                  © 2025 MyApp. All rights reserved.
+                </footer>
+            </div>
+
+              <ScrollRestoration />
+              <Scripts />
+            </ModalsProvider>
         </MantineProvider>
       </body>
     </html>

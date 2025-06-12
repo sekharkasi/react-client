@@ -7,6 +7,8 @@ import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import { useNavigate } from 'react-router';
 import { showDemoNotifications } from "~/root";
 
+import { openConfirmModal } from '@mantine/modals';
+
 
 //Load AG Grid 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -43,22 +45,19 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
     }));
 
     const handleDelete = async (product) => {
-        const confirmation = confirm(`Are you sure you want to delete ${product.product_name}?`);
-        if(!confirmation)
-            return;
-
-        try{
-
+        console.log("handleDelete ", product);
+        const confirmation = window.confirm(`Are you sure you want to delete ${product.product_name}?`);
+        if (!confirmation) return;
+      
+        try {
             const response = await fetch(`http://localhost:19200/product/${product.id}`, {
                 method: 'DELETE',
                 credentials: 'include',
             });
 
             if (response.ok) {
-                //const gridRef = useRef();
                 gridRef.current.api.applyTransaction({ remove: [product] });                
                 showDemoNotifications({title: 'Success', message: 'Product deleted successfully!', color: 'green'});
-
             } else {
                 showDemoNotifications({title: 'Failure', message: 'Something went wrong', color: 'red'});
                 console.error('Failed to delete product');
@@ -66,7 +65,45 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
         }
         catch(e){
             console.error(e);
+            showDemoNotifications({title: 'Error', message: 'An error occurred while deleting the product', color: 'red'});
         }
+
+        /*
+        try {
+            console.log("Opening confirm modal...");
+            openConfirmModal({
+                title: 'Confirm Deletion',
+                children: `Are you sure you want to delete ${product.product_name}?`,
+                labels: { confirm: 'Delete', cancel: 'Cancel' },
+                confirmProps: { color: 'red' },
+                zIndex: 10000,
+                onConfirm: async () => {
+                    console.log("delete confirmed");
+                    try {
+                        const response = await fetch(`http://localhost:19200/product/${product.id}`, {
+                            method: 'DELETE',
+                            credentials: 'include',
+                        });
+
+                        if (response.ok) {
+                            gridRef.current.api.applyTransaction({ remove: [product] });                
+                            showDemoNotifications({title: 'Success', message: 'Product deleted successfully!', color: 'green'});
+                        } else {
+                            showDemoNotifications({title: 'Failure', message: 'Something went wrong', color: 'red'});
+                            console.error('Failed to delete product');
+                        }
+                    }
+                    catch(e){
+                        console.error(e);
+                        showDemoNotifications({title: 'Error', message: 'An error occurred while deleting the product', color: 'red'});
+                    }
+                },
+            });
+            console.log("Confirm modal opened");
+        } catch (error) {
+            console.error("Error opening modal:", error);
+        }
+        */
     }
 
     const onCellEdit = async (event) => {
@@ -144,6 +181,9 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
 
     const defaultColDef = {
         flex: 1,
+        sortable: true,
+        filter: true,
+        resizable: true
       };
 
       // Container: Defines the grid's theme & dimensions.

@@ -67,6 +67,9 @@ const CustomersGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) 
 
     const defaultColDef = {
         flex: 1,
+        sortable: true,
+        filter: true,
+        resizable: true
       };
 
       // Container: Defines the grid's theme & dimensions.

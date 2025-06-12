@@ -128,13 +128,18 @@ export async function clientLoader({params}: Route.ClientLoaderArgs){
 }
 
 const ProductsTileView = ({ products }) => {
-
   const [quantities, setQuantities] = useState<{ [productId: string]: number }>({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleQuantityChange = (productId: string, value: string) => {
-    const qty = Math.max(1, parseInt(value) || 1); // Ensure at least 1
+    const qty = Math.max(1, parseInt(value) || 1);
     setQuantities(prev => ({ ...prev, [productId]: qty }));
   };
+
+  const filteredProducts = products.filter(product => 
+    product.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
    const AddProductToCart = async (product, quantity) => {
        
@@ -168,36 +173,47 @@ const ProductsTileView = ({ products }) => {
 
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-      {products.map((product) => (
-        <div key={product.id} className="bg-white shadow rounded p-4">
-          {product.image && <img src={product.image} alt="preview" className="w-full h-40 object-contain mb-2 rounded"/>}
-          <h3 className="text-lg font-semibold text-center py-2">{product.product_name}</h3>
-          <p className="text-gray-600">{product.description}</p>
-          <p className="text-blue-500 font-bold">₹{product.price_per_unit}</p>
-          <div className="flex items-center mb-2">
-            <label htmlFor={`qty-${product.id}`} className="mr-2">Qty:</label>
-            <input
-              id={`qty-${product.id}`}
-              type="number"
-              min={1}
-              value={quantities[product.id] || 1}
-              onChange={e => handleQuantityChange(product.id, e.target.value)}
-              className="w-16 border input-border-gray hover:border-gray-700 rounded px-2 py-0"
-            />
-          </div>
-          <div className="flex justify-center py-2">
-            <button
-                      onClick={()=> AddProductToCart(product, quantities[product.id] || 1)}
-                      className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
-                  >
-                      Add to Cart
-                  </button>  
-          </div>
-          
+    <div className="w-full max-w-[1000px] mx-auto">
+      <div className="mb-4 px-4 w-full">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+        {filteredProducts.map((product) => (
+          <div key={product.id} className="bg-white shadow rounded p-4">
+            {product.image && <img src={product.image} alt="preview" className="w-full h-40 object-contain mb-2 rounded"/>}
+            <h3 className="text-lg font-semibold text-center py-2">{product.product_name}</h3>
+            <p className="text-gray-600">{product.description}</p>
+            <p className="text-blue-500 font-bold">₹{product.price_per_unit}</p>
+            <div className="flex items-center mb-2">
+              <label htmlFor={`qty-${product.id}`} className="mr-2">Qty:</label>
+              <input
+                id={`qty-${product.id}`}
+                type="number"
+                min={1}
+                value={quantities[product.id] || 1}
+                onChange={e => handleQuantityChange(product.id, e.target.value)}
+                className="w-16 border input-border-gray hover:border-gray-700 rounded px-2 py-0"
+              />
+            </div>
+            <div className="flex justify-center py-2">
+              <button
+                        onClick={()=> AddProductToCart(product, quantities[product.id] || 1)}
+                        className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
+                    >
+                        Add to Cart
+                    </button>  
+            </div>
+            
 
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
