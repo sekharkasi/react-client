@@ -5,6 +5,8 @@ import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { useNavigate } from 'react-router';
 
+import { showDemoNotifications } from "~/root";
+
 // Load AG Grid 
 ModuleRegistry.registerModules([AllCommunityModule]);
 

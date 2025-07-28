@@ -41,3 +41,10 @@ body {
   border-color: #cbd5e1; /* gray-400 */
   box-shadow: 0 0 0 2px rgba(203, 213, 225, 0.6); /* focus ring like Tailwind */
 }
+
+.search-input {
+  width: 800px; /* or use min-width / max-width for flexibility */
+  box-sizing: border-box;
+  display: block;
+  margin: 0 auto;
+}

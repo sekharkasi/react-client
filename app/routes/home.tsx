@@ -71,6 +71,7 @@ const ProductsGrid = React.forwardRef((props: { loaderData: LoaderData }, ref) =
     };
 
    const FullWidthRenderer = (props) => {
+
       const product = props.data;
 
       console.log("FullWidthRenderer", product);
@@ -127,9 +128,13 @@ export async function clientLoader({params}: Route.ClientLoaderArgs){
     return data;
 }
 
-const ProductsTileView = ({ products }) => {
+const ProductsTileView = ({ products }: { products: Product[] }) => {
+
+
   const [quantities, setQuantities] = useState<{ [productId: string]: number }>({});
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const handleQuantityChange = (productId: string, value: string) => {
     const qty = Math.max(1, parseInt(value) || 1);
@@ -171,49 +176,103 @@ const ProductsTileView = ({ products }) => {
         }
     }
 
+    function handleProductClick(product: Product) {
+      console.log("handleProductClick", product);
+      setSelectedProduct(product);
+    }
 
   return (
-    <div className="w-full max-w-[1000px] mx-auto">
-      <div className="mb-4 px-4 w-full">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-        {filteredProducts.map((product) => (
-          <div key={product.id} className="bg-white shadow rounded p-4">
-            {product.image && <img src={product.image} alt="preview" className="w-full h-40 object-contain mb-2 rounded"/>}
-            <h3 className="text-lg font-semibold text-center py-2">{product.product_name}</h3>
-            <p className="text-gray-600">{product.description}</p>
-            <p className="text-blue-500 font-bold">₹{product.price_per_unit}</p>
-            <div className="flex items-center mb-2">
-              <label htmlFor={`qty-${product.id}`} className="mr-2">Qty:</label>
-              <input
-                id={`qty-${product.id}`}
-                type="number"
-                min={1}
-                value={quantities[product.id] || 1}
-                onChange={e => handleQuantityChange(product.id, e.target.value)}
-                className="w-16 border input-border-gray hover:border-gray-700 rounded px-2 py-0"
-              />
-            </div>
-            <div className="flex justify-center py-2">
-              <button
-                        onClick={()=> AddProductToCart(product, quantities[product.id] || 1)}
-                        className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
-                    >
-                        Add to Cart
-                    </button>  
-            </div>
-            
 
+    <div className="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row">
+      {/* Left: Product Grid */}
+      <div className="w-full md:flex-1">
+
+          <div className="mb-4 px-4 w-full">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-        ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
+            {filteredProducts.map((product) => (
+              <div 
+                key={product.id} 
+                className="bg-white shadow rounded p-4"
+                onClick={() => handleProductClick(product)}
+              >
+                {product.image && <img src={product.image} alt="preview" className="w-full h-40 object-contain mb-2 rounded"/>}
+                <h3 className="text-lg font-semibold text-center py-2">{product.product_name}</h3>
+                <p className="text-gray-600">{product.description}</p>
+                <p className="text-blue-500 font-bold">₹{product.price_per_unit}</p>
+                <div className="flex items-center mb-2">
+                  <label htmlFor={`qty-${product.id}`} className="mr-2">Qty:</label>
+                  <input
+                    id={`qty-${product.id}`}
+                    type="number"
+                    min={1}
+                    value={quantities[product.id] || 1}
+                    onChange={e => handleQuantityChange(product.id, e.target.value)}
+                    className="w-16 border input-border-gray hover:border-gray-700 rounded px-2 py-0"
+                  />
+                </div>
+                <div className="flex justify-center py-2">
+                  <button
+                            onClick={()=> AddProductToCart(product, quantities[product.id] || 1)}
+                            className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
+                        >
+                            Add to Cart
+                        </button>  
+                </div>
+              </div>
+            ))}
+          </div>        
       </div>
+
+       {/* Right: Product Details */}
+       <div className="w-full md:w-1/3 p-4 bg-white shadow rounded ml-0 md:ml-4 mt-4 md:mt-0">
+            <div class="p4">
+              <label>Product details</label>
+            </div>
+            {selectedProduct ? (
+              <>
+                {selectedProduct.image && (
+                  <img
+                    src={selectedProduct.image}
+                    alt="preview"
+                    className="w-full h-60 object-contain mb-4 rounded"
+                  />
+                )}
+                <h2 className="text-2xl font-bold mb-2">{selectedProduct.product_name}</h2>
+                <p className="mb-2">{selectedProduct.description}</p>
+                <p className="text-blue-600 font-semibold mb-2">₹{selectedProduct.price_per_unit}</p>
+                <p className="mb-2">Status: {selectedProduct.active ? "Active" : "Inactive"}</p>
+                <div className="flex items-center mb-2">
+                  <label htmlFor={`qty-${selectedProduct.id}`} className="mr-2">Qty:</label>
+                  <input
+                    id={`qty-${selectedProduct.id}`}
+                    type="number"
+                    min={1}
+                    value={quantities[selectedProduct.id] || 1}
+                    onChange={e => handleQuantityChange(selectedProduct.id, e.target.value)}
+                    className="w-16 border input-border-gray hover:border-gray-700 rounded px-2 py-0"
+                  />
+                </div>
+                <div className="flex justify-center py-2">
+                  <button
+                            onClick={()=> AddProductToCart(selectedProduct, quantities[selectedProduct.id] || 1)}
+                            className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
+                        >
+                            Add to Cart
+                        </button>  
+                </div>
+              </>
+            ) : (
+              <div className="text-gray-500">Select a product to see details</div>
+            )}
+        </div>
     </div>
   );
 };
