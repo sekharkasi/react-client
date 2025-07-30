@@ -82,9 +82,8 @@ export function Signout() : React.ReactElement {
             <body  className="font-sans bg-white text-gray-900">
 
               <MantineProvider>
-              <Notifications position="top-right" zIndex={2077}>
-               </Notifications>
-              </MantineProvider>
+                <Notifications position="top-right" zIndex={2077}>
+                </Notifications>
 
                   <div className="flex flex-col h-screen">
                     {/* Header */}
@@ -126,6 +125,8 @@ export function Signout() : React.ReactElement {
                       </footer>
                   </div>
                
+              </MantineProvider>
+
               <ScrollRestoration />
               <Scripts />
             </body>

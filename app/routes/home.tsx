@@ -14,6 +14,7 @@ import React, { StrictMode, useState, useEffect, useRef, useImperativeHandle} fr
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';  
 import { AgGridReact } from 'ag-grid-react'; // React Data Grid Component
 import { redirect, useNavigate } from 'react-router';
+import { Rating, Textarea, Button, Modal, Group, Text, Stack } from '@mantine/core';
 
 import { showDemoNotifications } from "~/root";
 
@@ -28,6 +29,8 @@ type Product = {
   active: boolean;
   price_per_unit: string;
   id: string;
+  averageRating: number;
+  totalReviews: number;
 };
 
 
@@ -135,6 +138,13 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewProduct, setReviewProduct] = useState<Product | null>(null);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [productReviews, setProductReviews] = useState<{[productId: string]: any[]}>({});
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
+  const [selectedProductForReviews, setSelectedProductForReviews] = useState<Product | null>(null);
 
   const handleQuantityChange = (productId: string, value: string) => {
     const qty = Math.max(1, parseInt(value) || 1);
@@ -181,11 +191,78 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
       setSelectedProduct(product);
     }
 
-  return (
+    function handleWriteReview(product: Product) {
+      console.log("handleWriteReview", product);
+      setReviewProduct(product);
+      setReviewModalOpen(true);
+      setRating(0);
+      setReviewText('');
+    }
 
-    <div className="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row">
-      {/* Left: Product Grid */}
-      <div className="w-full md:flex-1">
+    const saveProductReview = async () => {
+      if (!reviewProduct || rating === 0) {
+        showDemoNotifications({title: 'Error', message: 'Please provide a rating', color: 'red'});
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:19200/product/reviews`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            product_id: reviewProduct.id,
+            rating: rating,
+            review: reviewText
+          })
+        });
+
+        if (response.ok) {
+          showDemoNotifications({title: 'Success', message: 'Review submitted successfully!', color: 'green'});
+          setReviewModalOpen(false);
+          setReviewProduct(null);
+          setRating(0);
+          setReviewText('');
+        } else {
+          const errorData = await response.json();
+          showDemoNotifications({title: 'Error', message: errorData.message || 'Failed to submit review', color: 'red'});
+        }
+      } catch (error) {
+        console.error('Error submitting review:', error);
+        showDemoNotifications({title: 'Error', message: 'An error occurred while submitting the review', color: 'red'});
+      }
+    };
+
+    const fetchProductReviews = async (productId: string) => {
+      try {
+        const response = await fetch(`http://localhost:19200/product/reviews/${productId}`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProductReviews(prev => ({ ...prev, [productId]: data.data }));
+          return data;
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      }
+    };
+
+    const handleViewReviews = async (product: Product) => {
+      setSelectedProductForReviews(product);
+      setReviewsModalOpen(true);
+      await fetchProductReviews(product.id);
+    };
+
+  return (
+    <>
+      <div className="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row">
+        {/* Left: Product Grid */}
+        <div className="w-full md:flex-1">
 
           <div className="mb-4 px-4 w-full">
             <input
@@ -206,6 +283,12 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
                 {product.image && <img src={product.image} alt="preview" className="w-full h-40 object-contain mb-2 rounded"/>}
                 <h3 className="text-lg font-semibold text-center py-2">{product.product_name}</h3>
                 <p className="text-gray-600">{product.description}</p>
+                <div className="flex flex-col items-center mb-2">
+                  <Rating value={product.averageRating} readOnly size="sm" />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {product.totalReviews} review{product.totalReviews !== 1 ? 's' : ''}
+                  </p>
+                </div>
                 <p className="text-blue-500 font-bold">₹{product.price_per_unit}</p>
                 <div className="flex items-center mb-2">
                   <label htmlFor={`qty-${product.id}`} className="mr-2">Qty:</label>
@@ -218,7 +301,7 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
                     className="w-16 border input-border-gray hover:border-gray-700 rounded px-2 py-0"
                   />
                 </div>
-                <div className="flex justify-center py-2">
+                <div className="flex justify-center py-2 space-x-2">
                   <button
                             onClick={()=> AddProductToCart(product, quantities[product.id] || 1)}
                             className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
@@ -229,11 +312,11 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
               </div>
             ))}
           </div>        
-      </div>
+        </div>
 
-       {/* Right: Product Details */}
-       <div className="w-full md:w-1/3 p-4 bg-white shadow rounded ml-0 md:ml-4 mt-4 md:mt-0">
-            <div class="p4">
+        {/* Right: Product Details */}
+        <div className="w-full md:w-1/3 p-4 bg-white shadow rounded ml-0 md:ml-4 mt-4 md:mt-0">
+            <div className="mb-5">
               <label>Product details</label>
             </div>
             {selectedProduct ? (
@@ -245,8 +328,14 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
                     className="w-full h-60 object-contain mb-4 rounded"
                   />
                 )}
-                <h2 className="text-2xl font-bold mb-2">{selectedProduct.product_name}</h2>
+                <h3 className="text-2xl text-center font-bold mb-2">{selectedProduct.product_name}</h3>
                 <p className="mb-2">{selectedProduct.description}</p>
+                <div className="flex flex-col items-center mb-2">
+                  <Rating value={selectedProduct.averageRating} readOnly size="md" />
+                  <p className="text-sm text-gray-500 mt-1">
+                    {selectedProduct.totalReviews} review{selectedProduct.totalReviews !== 1 ? 's' : ''}
+                  </p>
+                </div>
                 <p className="text-blue-600 font-semibold mb-2">₹{selectedProduct.price_per_unit}</p>
                 <p className="mb-2">Status: {selectedProduct.active ? "Active" : "Inactive"}</p>
                 <div className="flex items-center mb-2">
@@ -260,12 +349,24 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
                     className="w-16 border input-border-gray hover:border-gray-700 rounded px-2 py-0"
                   />
                 </div>
-                <div className="flex justify-center py-2">
+                <div className="flex justify-center py-2 space-x-2">
                   <button
                             onClick={()=> AddProductToCart(selectedProduct, quantities[selectedProduct.id] || 1)}
                             className='bg-gray-400 text-white px-2 py-0 rounded cursor-pointer'
                         >
                             Add to Cart
+                        </button>
+                  <button
+                            onClick={()=> handleWriteReview(selectedProduct)}
+                            className='bg-blue-400 text-white px-2 py-0 rounded cursor-pointer'
+                        >
+                            Write Review
+                        </button>
+                  <button
+                            onClick={()=> handleViewReviews(selectedProduct)}
+                            className='bg-green-400 text-white px-2 py-0 rounded cursor-pointer'
+                        >
+                            View Reviews
                         </button>  
                 </div>
               </>
@@ -273,7 +374,113 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
               <div className="text-gray-500">Select a product to see details</div>
             )}
         </div>
-    </div>
+      </div>
+
+      {/* Review Modal */}
+      <Modal
+        opened={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        title="Write a Review"
+        size="md"
+      >
+        {reviewProduct && (
+          <Stack spacing="md">
+            <div className="text-center">
+              <img
+                src={reviewProduct.image}
+                alt={reviewProduct.product_name}
+                className="w-32 h-32 object-contain mx-auto mb-4 rounded"
+              />
+              <Text size="lg" weight={500}>{reviewProduct.product_name}</Text>
+            </div>
+            
+            <div>
+              <Text size="sm" weight={500} mb="xs">Rating *</Text>
+              <Rating value={rating} onChange={setRating} size="lg" />
+            </div>
+            
+            <div>
+              <Text size="sm" weight={500} mb="xs">Review (Optional)</Text>
+              <Textarea
+                value={reviewText}
+                onChange={(event) => setReviewText(event.currentTarget.value)}
+                placeholder="Share your experience with this product..."
+                minRows={4}
+                maxRows={6}
+              />
+            </div>
+            
+            <Group position="right" mt="md">
+              <Button variant="outline" onClick={() => setReviewModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={saveProductReview}
+                disabled={rating === 0}
+              >
+                Submit Review
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+
+      {/* Reviews Display Modal */}
+      <Modal
+        opened={reviewsModalOpen}
+        onClose={() => setReviewsModalOpen(false)}
+        title="Product Reviews"
+        size="lg"
+      >
+        {selectedProductForReviews && (
+          <Stack spacing="md">
+            <div className="text-center">
+              <img
+                src={selectedProductForReviews.image}
+                alt={selectedProductForReviews.product_name}
+                className="w-32 h-32 object-contain mx-auto mb-4 rounded"
+              />
+              <Text size="lg" weight={500}>{selectedProductForReviews.product_name}</Text>
+            </div>
+            
+            <div>
+              {productReviews[selectedProductForReviews.id] && productReviews[selectedProductForReviews.id].length > 0 ? (
+                <div className="space-y-4">
+                  {productReviews[selectedProductForReviews.id].map((review, index) => (
+                    <div key={index} className="border rounded p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <Text weight={500}>{review.user?.name || 'Anonymous'}</Text>
+                        <Rating value={review.rating} readOnly size="sm" />
+                      </div>
+                      {review.review && (
+                        <Text size="sm" color="dimmed">{review.review}</Text>
+                      )}
+                      <Text size="xs" color="dimmed" mt="xs">
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </Text>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Text color="dimmed" align="center">No reviews yet. Be the first to review this product!</Text>
+              )}
+            </div>
+            
+            <Group position="center" mt="md">
+              <Button 
+                onClick={() => {
+                  setReviewsModalOpen(false);
+                  setReviewProduct(selectedProductForReviews);
+                  setReviewModalOpen(true);
+                }}
+              >
+                Write a Review
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+    </>
   );
 };
 
