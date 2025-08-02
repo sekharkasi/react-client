@@ -145,6 +145,8 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
   const [productReviews, setProductReviews] = useState<{[productId: string]: any[]}>({});
   const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
   const [selectedProductForReviews, setSelectedProductForReviews] = useState<Product | null>(null);
+  const [aiSummary, setAiSummary] = useState<string>('');
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
 
   const handleQuantityChange = (productId: string, value: string) => {
     const qty = Math.max(1, parseInt(value) || 1);
@@ -189,6 +191,8 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
     function handleProductClick(product: Product) {
       console.log("handleProductClick", product);
       setSelectedProduct(product);
+      // Fetch AI summary when product is selected
+      fetchAiSummary(product.id);
     }
 
     function handleWriteReview(product: Product) {
@@ -256,6 +260,31 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
       setSelectedProductForReviews(product);
       setReviewsModalOpen(true);
       await fetchProductReviews(product.id);
+    };
+
+    const fetchAiSummary = async (productId: string) => {
+      try {
+        setIsLoadingSummary(true);
+        setAiSummary('');
+        
+        const response = await fetch(`http://localhost:19200/ai/product/${productId}/summary`, {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAiSummary(data.aiSummary || 'No AI summary available');
+        } else {
+          console.error('Failed to fetch AI summary');
+          setAiSummary('Unable to generate AI summary at this time.');
+        }
+      } catch (error) {
+        console.error('Error fetching AI summary:', error);
+        setAiSummary('Unable to generate AI summary at this time.');
+      } finally {
+        setIsLoadingSummary(false);
+      }
     };
 
   return (
@@ -368,6 +397,25 @@ const ProductsTileView = ({ products }: { products: Product[] }) => {
                         >
                             View Reviews
                         </button>  
+                </div>
+
+                {/* AI Summary Section */}
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <h4 className="text-lg font-semibold mb-2 text-gray-800">AI Review Summary</h4>
+                  {isLoadingSummary ? (
+                    <div className="flex items-center justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                      <span className="ml-2 text-gray-600">Generating AI summary...</span>
+                    </div>
+                  ) : aiSummary ? (
+                    <div className="text-sm text-gray-700 leading-relaxed">
+                      {aiSummary}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-500 italic">
+                      Click on a product to generate AI-powered review summary
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
